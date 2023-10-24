@@ -1,9 +1,28 @@
 describe('Hacker Stories', () => {
-  beforeEach(() => {
-    cy.visit('/')
 
-    cy.assertLoadingIsShownAndHidden()
-    cy.contains('More').should('be.visible')
+  beforeEach(() => {
+
+    // cy.intercept(
+    //   'GET',
+    //   '**/search?query=React&page=0'
+    // ).as('getStories')
+
+    
+    cy.intercept({
+      method: 'GET',
+      pathname: '**/search',
+      query: {
+        query: 'React',
+        page: '0'
+      }
+    }).as('getStories')
+
+
+    cy.visit('/')
+    cy.wait('@getStories')
+
+    // cy.assertLoadingIsShownAndHidden()
+    // cy.contains('More').should('be.visible')
   })
 
   it('shows the footer', () => {
@@ -20,12 +39,21 @@ describe('Hacker Stories', () => {
     // TODO: Find a way to test it out.
     it.skip('shows the right data for all rendered stories', () => {})
 
-    it('shows 20 stories, then the next 20 after clicking "More"', () => {
+    it.only('shows 20 stories, then the next 20 after clicking "More"', () => {
+
+      cy.intercept({
+        method: 'GET',
+        pathname: '**/search',
+        query: {
+          query: 'React',
+          page: '1'
+        }
+      }).as('getNextStories')
       cy.get('.item').should('have.length', 20)
 
-      cy.contains('More').click()
+      cy.contains('More').click() 
 
-      cy.assertLoadingIsShownAndHidden()
+      cy.wait('@getNextStories');
 
       cy.get('.item').should('have.length', 40)
     })
