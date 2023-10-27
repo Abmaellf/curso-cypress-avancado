@@ -39,7 +39,7 @@ describe('Hacker Stories', () => {
     // TODO: Find a way to test it out.
     it.skip('shows the right data for all rendered stories', () => {})
 
-    it.only('shows 20 stories, then the next 20 after clicking "More"', () => {
+    it('shows 20 stories, then the next 20 after clicking "More"', () => {
 
       cy.intercept({
         method: 'GET',
@@ -71,6 +71,7 @@ describe('Hacker Stories', () => {
     // and so, how can I test ordering?
     // This is why these tests are being skipped.
     // TODO: Find a way to test them out.
+
     context.skip('Order by', () => {
       it('orders by title', () => {})
 
@@ -100,11 +101,18 @@ describe('Hacker Stories', () => {
         .clear()
     })
 
-    it('types and hits ENTER', () => {
+    it.only('types and hits ENTER', () => {
+
+      cy.intercept(
+        'GET',
+        `**/search?query=${newTerm}&page=0`,
+      ).as('getNewTermStories')
+
       cy.get('#search')
         .type(`${newTerm}{enter}`)
 
-      cy.assertLoadingIsShownAndHidden()
+      // cy.assertLoadingIsShownAndHidden()
+      cy.wait('@getNewTermStories')
 
       cy.get('.item').should('have.length', 20)
       cy.get('.item')
